@@ -52,8 +52,8 @@
     Wait2us;                                                                   \
   }
 
-unsigned int ADCSelChannel(unsigned char Channel) {
-  unsigned int ConvertValue;
+int analogRead(unsigned char Channel) {
+  int ConvertValue;
   unsigned char i, Chan;
   unsigned char ConvertValueL, ConvertValueH;
   unsigned char delay;
@@ -125,7 +125,7 @@ unsigned int ADCSelChannel(unsigned char Channel) {
 }
 
 int main() {
-  unsigned int re;
+  int re;
   unsigned char d1, d2, d3, d4;
 
   if (wiringPiSetup() < 0) {
@@ -141,21 +141,17 @@ int main() {
   pinMode(Clock, OUTPUT);
   pinMode(DataIn, OUTPUT);
   pinMode(ChipSelect, OUTPUT);
-  pinMode(24, OUTPUT);
 
   while (1) {
     /* if (digitalRead (LED) == 0)
        printf ("0\n") ;
      delay (500) ;*/
-    digitalWrite(24, 1);
     printf("AD: %d%d%d%d \n", d1, d2, d3, d4);
-    re = ADCSelChannel(0);
+    re = analogRead(3);
     d1 = re / 1000;
     d2 = re / 100 % 10;
     d3 = re / 10 % 10;
     d4 = re % 10;
     delay(100);
-    digitialWrite(24, 0);
-    delay(1000);
   }
 }

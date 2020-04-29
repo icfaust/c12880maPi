@@ -1,31 +1,26 @@
+#include<wiringPi>
+#include<vector>
+#include<iostream>
+#include<fstream>
+
+
 /*
  * Macro Definitions
  */
-#define SPEC_TRG A0
-#define SPEC_ST A1
-#define SPEC_CLK A2
-#define SPEC_VIDEO A3
-#define WHITE_LED A4
-#define LASER_404 A5
+#define SPEC_TRG 10
+#define SPEC_ST 21
+#define SPEC_CLK 22
+#define SPEC_VIDEO 3
+#define WHITE_LED 24
+#define LASER_404 25
+
+#define HIGH 1
+#define LOW 0
 
 #define SPEC_CHANNELS 288 // New Spec Channel
-uint16_t data[SPEC_CHANNELS];
+int data[SPEC_CHANNELS];
 
-void setup() {
-
-  // Set desired pins to OUTPUT
-  pinMode(SPEC_CLK, OUTPUT);
-  pinMode(SPEC_ST, OUTPUT);
-  pinMode(LASER_404, OUTPUT);
-  pinMode(WHITE_LED, OUTPUT);
-
-  digitalWrite(SPEC_CLK, HIGH); // Set SPEC_CLK High
-  digitalWrite(SPEC_ST, LOW);   // Set SPEC_ST Low
-
-  Serial.begin(115200); // Baud Rate set to 115200
-}
-
-c12880ma::c12880ma(int trig, int start, int clock, ADC t1543){
+/*c12880ma::c12880ma(int trig, int start, int clock, ADC t1543){
   this.trig = trig;
   this.clock = clock;
   this.start = start;
@@ -36,7 +31,7 @@ c12880ma::c12880ma(int trig, int start, int clock, ADC t1543){
 void c12880ma::read(){
 
 
-}
+}*/
 
 
 /*
@@ -110,24 +105,25 @@ void readSpectrometer() {
   delayMicroseconds(delayTime);
 }
 
-/*
- * The function below prints out data to the terminal or
- * processing plot
- */
-void printData() {
+void printData(std::ofstream myfile){
+    for(int count = 0; count < SPEC_CHANNELS; count ++){
+        myfile << data[count] << "," ;
+    }
 
-  for (int i = 0; i < SPEC_CHANNELS; i++) {
-
-    Serial.print(data[i]);
-    Serial.print(',');
-  }
-
-  Serial.print("\n");
 }
 
-void loop() {
+int main() {
+  pinMode(SPEC_CLK, OUTPUT);
+  pinMode(SPEC_ST, OUTPUT);
+  pinMode(LASER_404, OUTPUT);
+  pinMode(WHITE_LED, OUTPUT);
+
+  std::ofstream myfile ("example.txt");
+
+  digitalWrite(SPEC_CLK, HIGH); // Set SPEC_CLK High
+  digitalWrite(SPEC_ST, LOW);   // Set SPEC_ST Low
 
   readSpectrometer();
-  printData();
-  delay(10);
+  printData(myfile);
+  myfile.close();
 }
