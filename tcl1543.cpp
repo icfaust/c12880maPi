@@ -58,7 +58,7 @@ unsigned int ADCSelChannel(unsigned char Channel) {
   unsigned char ConvertValueL, ConvertValueH;
   unsigned char delay;
 
-  ConvertValueL = ConvertValueH = 0; //��ʼ��ת�����
+  ConvertValueL = ConvertValueH = 0; //Initialize conversion results
   delay = 0;
   if (digitalRead(EOC)) {
     digitalWrite(Clock, 0);
@@ -67,7 +67,7 @@ unsigned int ADCSelChannel(unsigned char Channel) {
     digitalWrite(ChipSelect, 0);
     Wait2us;
     Channel = Channel << 4;
-    for (i = 0; i < 4; i++) //������Ҫת����ͨ���ı���
+    for (i = 0; i < 4; i++) //Enter the channel number to be digitized
     {
       Chan = Channel;
       Chan = Chan >> 7;
@@ -77,19 +77,19 @@ unsigned int ADCSelChannel(unsigned char Channel) {
       digitalWrite(Clock, 0);
       Channel = Channel << 1;
     }
-    for (i = 0; i < 6; i++) //����ת��ʱ��
+    for (i = 0; i < 6; i++) //Input conversion clock
     {
       digitalWrite(Clock, 1);
       digitalWrite(Clock, 0);
     }
     digitalWrite(ChipSelect, 1);
-    //��ʼ���ת��������־������ת����ʱ����
+    //Start detection of conversion end flag, or conversion timeout error
     while ((!digitalRead(EOC)) && (delay < 10)) {
       Wait10us;
       delay++;
     }
     if (delay == 10) {
-      return (0xFFFF); //ת����ʱ�����ش������
+      return (0xFFFF); //Conversion timeout, return error code
     } else {
       Wait10us;
       digitalWrite(Clock, 0);
@@ -97,7 +97,7 @@ unsigned int ADCSelChannel(unsigned char Channel) {
       Wait1us;
       digitalWrite(ChipSelect, 0);
       Wait1us;
-      for (i = 0; i < 2; i++) //��ȡ�߶�λbitֵ
+      for (i = 0; i < 2; i++) //Read the upper two bits
       {
         digitalWrite(Clock, 1);
         ConvertValueH <<= 1;
@@ -106,7 +106,7 @@ unsigned int ADCSelChannel(unsigned char Channel) {
         digitalWrite(Clock, 0);
         Wait1us;
       }
-      for (i = 0; i < 8; i++) //��ȡ�Ͱ�λbitֵ
+      for (i = 0; i < 8; i++) //Read the lower 8 bits
       {
         digitalWrite(Clock, 1);
         ConvertValueL <<= 1;
@@ -119,7 +119,7 @@ unsigned int ADCSelChannel(unsigned char Channel) {
       ConvertValue = ConvertValueH;
       ConvertValue <<= 8;
       ConvertValue |= ConvertValueL;
-      return ConvertValue; //����ת�����
+      return ConvertValue; //Return digitized value
     }
   }
 }
@@ -141,11 +141,13 @@ int main() {
   pinMode(Clock, OUTPUT);
   pinMode(DataIn, OUTPUT);
   pinMode(ChipSelect, OUTPUT);
+  pinMode(24, OUTPUT);
 
   while (1) {
     /* if (digitalRead (LED) == 0)
        printf ("0\n") ;
      delay (500) ;*/
+    digitalWrite(24, 1);
     printf("AD: %d%d%d%d \n", d1, d2, d3, d4);
     re = ADCSelChannel(0);
     d1 = re / 1000;
@@ -153,5 +155,7 @@ int main() {
     d3 = re / 10 % 10;
     d4 = re % 10;
     delay(100);
+    digitialWrite(24, 0);
+    delay(1000);
   }
 }

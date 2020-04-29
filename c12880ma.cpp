@@ -25,6 +25,20 @@ void setup() {
   Serial.begin(115200); // Baud Rate set to 115200
 }
 
+c12880ma::c12880ma(int trig, int start, int clock, ADC t1543){
+  this.trig = trig;
+  this.clock = clock;
+  this.start = start;
+  this.video = t1543;
+  
+}
+
+void c12880ma::read(){
+
+
+}
+
+
 /*
  * This functions reads spectrometer data from SPEC_VIDEO
  * Look at the Timing Chart in the Datasheet for more info
