@@ -113,6 +113,7 @@ int analogRead(unsigned char Channel) {
         digitalWrite(Clock, 0);
         Wait1us;
       }
+
       digitalWrite(ChipSelect, 1);
       ConvertValue = ConvertValueH;
       ConvertValue <<= 8;

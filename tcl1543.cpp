@@ -52,6 +52,77 @@
     Wait2us;                                                                   \
   }
 
+class tcl1543
+{
+  private:
+  unsigned int EOC;
+  unsigned int Clock;
+  unsigned int DataIn;
+  unsigned int DataOut;
+  unsigned int ChipSelect;
+  bool flag;
+  
+  void clocktick(void);
+
+  public:
+  tcl1543(unsigned int mEOC, unsigned int CL, unsigned int address, unsigned int dout, unsigned int CS);
+
+  void sync(bool flag);
+  unsigned int analogRead(int channel);
+
+}
+
+tcl1543::tcl1543(unsigned int mEOC, unsigned int CL, unsigned int address, unsigned int dout, unsigned int CS){
+  EOC = mEOC;
+  Clock = CL;
+  DataIn = address;
+  DataOut = dout;
+  ChipSelect = CS;
+  flag = true;
+  sync();
+}
+
+void tcl1543::clocktick(){
+	digitalWrite(Clock, 1);
+	Wait2us;
+	digitalWrite(Clock, 0);
+	Wait2us;
+}
+
+
+void tcl1543::sync(void){
+	bool flag1 = false;
+	unsigned char i, j;
+	unsigned char Chan[4] = {1,1,0,1};
+
+	while(flag)
+	{
+		j = 16;
+		digitalWrite(Clock, 0);
+		digitalWrite(ChipSelect, 1);
+		Wait2us;
+		digitalWrite(ChipSelect, 0);
+		Wait2us;
+
+		for (i=0; i<j; i++){
+			if(i < 4) digitalWrite(DataIn, Chan[i]); //tell the next pass to return 10 1's
+			if(i < 10 && !digitalRead(DataOut) && flag1) j = 15; //if the code does not list 10 1's move the sync
+			std::cout << (int)digitalRead(DataOut) << ",";
+			Wait2us;
+			clocktick();
+		}
+		std::cout<<std::endl;
+		if(j == 16 && flag1) flag = false; //if not in sync, do it again, but only do this starting the second time around
+
+		flag1 = true; //its has been successfully delayed
+		digitalWrite(ChipSelect ,0);
+
+	}
+}
+
+
+
+
 int analogRead(unsigned char Channel) {
   int ConvertValue;
   unsigned char i, Chan;
@@ -147,7 +218,7 @@ int main() {
        printf ("0\n") ;
      delay (500) ;*/
     printf("AD: %d%d%d%d \n", d1, d2, d3, d4);
-    re = analogRead(3);
+    re = analogRead(0);
     d1 = re / 1000;
     d2 = re / 100 % 10;
     d3 = re / 10 % 10;
