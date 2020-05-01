@@ -140,15 +140,14 @@ unsigned int tcl1543::analogRead(unsigned int channel) {
   digitalWrite(ChipSelect, 0);
   Wait2us;
 
-  for (i = 0; i < 16;
-       i++) { // input the channel to be read    Channel = Channel << 4;
+  for (i = 0; i < 16; i++) { // input the channel to read
     if (i < 4) {
       digitalWrite(DataIn, (unsigned char)(channel >> 7) & 0x01);
       channel <<= 1;
     }
 
     if (i < 10 && !digitalRead(DataOut))
-      flag = true; // if the code does not list 10 1's move the sync
+      flag = true; // if the code does not list 10 1's it is out of sync
     Wait2us;
     clocktick();
   }
