@@ -121,19 +121,17 @@ void tcl1543::sync(void) {
         digitalWrite(DataIn, Chan[i] & 0x01); // tell the next pass to return 10 1's
       if (i < 10 && !digitalRead(DataOut) && flag1)
         j = 15; // if the code does not list 10 1's move the sync
-      std::cout << (int)digitalRead(DataOut) << ",";
+
       Wait2us;
       clocktick();
     }
-    std::cout << std::endl;
+
     if (j == 16 && flag1)
       flag = false; // if not in sync, do it again, but only do this starting
                     // the second time around
 
     flag1 = true; // its has been successfully delayed
     digitalWrite(ChipSelect, 0);
-    std::cout<< flag1 << std::endl;
-    delay(100);
   }
 }
 
@@ -178,97 +176,15 @@ unsigned int tcl1543::analogRead(unsigned int channel) {
   return output;
 }
 
-int analogRead(unsigned char Channel) {
-  int ConvertValue;
-  unsigned char i, Chan;
-  unsigned char ConvertValueL, ConvertValueH;
-  unsigned char delay;
-
-  ConvertValueL = ConvertValueH = 0; // Initialize conversion results
-  delay = 0;
-  if (digitalRead(EOC1)) {
-    digitalWrite(Clock1, 0);
-    digitalWrite(ChipSelect1, 1);
-    Wait2us;
-    digitalWrite(ChipSelect1, 0);
-    Wait2us;
-    Channel = Channel << 4;
-    for (i = 0; i < 4; i++) // Enter the channel number to be digitized
-    {
-      Chan = Channel;
-      Chan = Chan >> 7;
-      digitalWrite(DataIn1, Chan & 0x01);
-      Wait2us;
-      digitalWrite(Clock1, 1);
-      digitalWrite(Clock1, 0);
-      Channel = Channel << 1;
-    }
-    for (i = 0; i < 6; i++) // Input conversion clock
-    {
-      digitalWrite(Clock1, 1);
-      digitalWrite(Clock1, 0);
-    }
-    digitalWrite(ChipSelect1, 1);
-    // Start detection of conversion end flag, or conversion timeout error
-    while ((!digitalRead(EOC1)) && (delay < 10)) {
-      Wait10us;
-      delay++;
-    }
-    if (delay == 10) {
-      return (0xFFFF); // Conversion timeout, return error code
-    } else {
-      Wait10us;
-      digitalWrite(Clock1, 0);
-      digitalWrite(ChipSelect1, 1);
-      Wait1us;
-      digitalWrite(ChipSelect1, 0);
-      Wait1us;
-      for (i = 0; i < 2; i++) // Read the upper two bits
-      {
-        digitalWrite(Clock1, 1);
-        ConvertValueH <<= 1;
-        if (digitalRead(DataOut1))
-          ConvertValueH |= 0x1;
-        digitalWrite(Clock1, 0);
-        Wait1us;
-      }
-      for (i = 0; i < 8; i++) // Read the lower 8 bits
-      {
-        digitalWrite(Clock1, 1);
-        ConvertValueL <<= 1;
-        if (digitalRead(DataOut1))
-          ConvertValueL |= 0x1;
-        digitalWrite(Clock1, 0);
-        Wait1us;
-      }
-      digitalWrite(ChipSelect1, 1);
-      ConvertValue = ConvertValueH;
-      ConvertValue <<= 8;
-      ConvertValue |= ConvertValueL;
-      return ConvertValue; // Return digitized value
-    }
-  }
-}
-
 
 int main() {
-  int re;
+  int re, cntr = 0;
   unsigned char d1, d2, d3, d4;
-  wiringPiSetup();
-  /*
+  
   if (wiringPiSetup() < 0) {
     fprintf(stderr, "Unable to open serial device: %s\n", strerror(errno));
     return 1;
   }
-
-  pinMode(EOC1, INPUT);
-  pullUpDnControl(EOC1, PUD_UP);
-  pinMode(DataOut1, INPUT);
-  pullUpDnControl(DataOut1, PUD_UP);
-
-  pinMode(Clock1, OUTPUT);
-  pinMode(DataIn1, OUTPUT);
-  pinMode(ChipSelect1, OUTPUT);*/
 
   tcl1543 adc(26,27,28,29,30);
 
@@ -276,13 +192,14 @@ int main() {
     /* if (digitalRead (LED) == 0)
        printf ("0\n") ;
      delay (500) ;*/
-    printf("AD: %d%d%d%d \n", d1, d2, d3, d4);
-    re = adc.analogRead(13);
-    //re = analogRead(13);
+    printf("%d AD: %d%d%d%d \n",cntr, d1, d2, d3, d4);
+    re = adc.analogRead(11);
+
     d1 = re / 1000;
     d2 = re / 100 % 10;
     d3 = re / 10 % 10;
     d4 = re % 10;
-    delay(100);
+    delay(10);
+    cntr++;
   }
 }
