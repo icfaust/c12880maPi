@@ -68,7 +68,7 @@ class tcl1543
   tcl1543(unsigned int mEOC, unsigned int CL, unsigned int address, unsigned int dout, unsigned int CS);
 
   void sync(bool flag);
-  unsigned int analogRead(int channel);
+  unsigned int analogRead(unsigned int channel);
 
 }
 
@@ -79,6 +79,16 @@ tcl1543::tcl1543(unsigned int mEOC, unsigned int CL, unsigned int address, unsig
   DataOut = dout;
   ChipSelect = CS;
   flag = true;
+
+  pinMode(EOC, INPUT);
+  pullUpDnControl(EOC, PUD_UP);
+  pinMode(DataOut, INPUT);
+  pullUpDnControl(DataOut, PUD_UP);
+
+  pinMode(Clock, OUTPUT);
+  pinMode(DataIn, OUTPUT);
+  pinMode(ChipSelect, OUTPUT);
+
   sync();
 }
 
@@ -88,7 +98,6 @@ void tcl1543::clocktick(){
 	digitalWrite(Clock, 0);
 	Wait2us;
 }
-
 
 void tcl1543::sync(void){
 	bool flag1 = false;
@@ -118,6 +127,46 @@ void tcl1543::sync(void){
 		digitalWrite(ChipSelect ,0);
 
 	}
+}
+
+unsigned int tcl1543::analogRead(unsigned int channel){
+	bool flag1 = false;
+  unsigned int output = 0;
+	unsigned char i, j;
+	unsigned char Chan[4] = {1,1,0,1};
+
+  channel <<= 4;
+
+  digitalWrite(Clock, 0);
+	digitalWrite(ChipSelect, 1);
+	Wait2us;
+	digitalWrite(ChipSelect, 0);
+	Wait2us;
+
+  for (i=0; i<16; i++){ //input the channel to be read    Channel = Channel << 4;
+    if(i < 4){
+      digitalWrite(DataIn, (unsigned char)(channel >> 7) & 0x01);
+      channel <<= 1;
+    }
+		
+		if(i < 10 && !digitalRead(DataOut)) flag = true; //if the code does not list 10 1's move the sync
+		Wait2us;
+		clocktick();
+	}
+
+	for (i=0; i<16; i++){ //read data and set channel back to ref+
+		if(i < 4) digitalWrite(DataIn, Chan[i]); //tell the next pass to return 10 1's
+		if(i < 10){
+      output <<= 1;
+      output |= digitalRead(DataOut, Ch);
+    }
+		Wait2us;
+		clocktick();
+	}
+	digitalWrite(ChipSelect ,0);
+
+  sync(); //rerun sync if there are dataout problems
+  return output;
 }
 
 
