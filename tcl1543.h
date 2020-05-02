@@ -1,8 +1,6 @@
 
 #ifndef TCL1543_H
 #define TCL1543_H
-#include <stdio.h>
-#include <string.h>
 
 #include <wiringPi.h>
 

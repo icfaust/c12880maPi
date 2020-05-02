@@ -128,11 +128,12 @@ unsigned int tcl1543::analogRead(unsigned int channel) {
   }
   digitalWrite(ChipSelect, 0);
 
-  sync(); // rerun sync if there are dataout problems
+  //sync(); // rerun sync if there are dataout problems
+  Wait2us;
   return output;
 }
 
-
+/*
 int main() {
   int re, cntr = 0;
   unsigned char d1, d2, d3, d4;
@@ -147,7 +148,7 @@ int main() {
   while (1) {
     /* if (digitalRead (LED) == 0)
        printf ("0\n") ;
-     delay (500) ;*/
+     delay (500) ;*//*
     printf("%d AD: %d%d%d%d \n",cntr, d1, d2, d3, d4);
     re = adc.analogRead(11);
 
@@ -155,7 +156,6 @@ int main() {
     d2 = re / 100 % 10;
     d3 = re / 10 % 10;
     d4 = re % 10;
-    delay(10);
     cntr++;
   }
-}
+}*/
