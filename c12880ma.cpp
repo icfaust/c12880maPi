@@ -1,4 +1,4 @@
-#include<wiringPi>
+#include<wiringPi.h>
 #include<vector>
 #include<iostream>
 #include<fstream>
@@ -18,7 +18,7 @@
 #define HIGH 1
 #define LOW 0
 
-#define SPEC_CHANNELS 288 // New Spec Channel
+#define SPEC_CHANNELS 350 // New Spec Channel
 int data[SPEC_CHANNELS];
 
 /*c12880ma::c12880ma(int trig, int start, int clock, ADC t1543){
@@ -39,7 +39,7 @@ void c12880ma::read(){
  * This functions reads spectrometer data from SPEC_VIDEO
  * Look at the Timing Chart in the Datasheet for more info
  */
-void readSpectrometer(tcl1543 *adc) {
+void readSpectrometer(tcl1543 adc) {
 
   int delayTime = 1; // delay time
 
@@ -52,15 +52,15 @@ void readSpectrometer(tcl1543 *adc) {
   digitalWrite(SPEC_ST, HIGH);
   delayMicroseconds(delayTime);
 
-  // Sample for a period of time
-  for (int i = 0; i < 15; i++) {
+  //Sample for a period of time
+  for (int i = 0; i < 35; i++) {
 
     digitalWrite(SPEC_CLK, HIGH);
     delayMicroseconds(delayTime);
     digitalWrite(SPEC_CLK, LOW);
     delayMicroseconds(delayTime);
-  }
-
+  }	
+  delay(15);
   // Set SPEC_ST to low
   digitalWrite(SPEC_ST, LOW);
 
@@ -68,9 +68,9 @@ void readSpectrometer(tcl1543 *adc) {
   for (int i = 0; i < 85; i++) {
 
     digitalWrite(SPEC_CLK, HIGH);
-    delayMicroseconds(delayTime);
+    //delayMicroseconds(delayTime);
     digitalWrite(SPEC_CLK, LOW);
-    delayMicroseconds(delayTime);
+    //delayMicroseconds(delayTime);
   }
 
   // One more clock pulse before the actual read
@@ -82,14 +82,14 @@ void readSpectrometer(tcl1543 *adc) {
   // Read from SPEC_VIDEO
   for (int i = 0; i < SPEC_CHANNELS; i++) {
 
-    data[i] = adc->analogRead(SPEC_VIDEO);
+    data[i] = adc.analogRead(SPEC_VIDEO);
 
     digitalWrite(SPEC_CLK, HIGH);
     delayMicroseconds(delayTime);
     digitalWrite(SPEC_CLK, LOW);
     delayMicroseconds(delayTime);
   }
-
+  /*
   // Set SPEC_ST to high
   digitalWrite(SPEC_ST, HIGH);
 
@@ -101,12 +101,12 @@ void readSpectrometer(tcl1543 *adc) {
     digitalWrite(SPEC_CLK, LOW);
     delayMicroseconds(delayTime);
   }
-
+*/
   digitalWrite(SPEC_CLK, HIGH);
   delayMicroseconds(delayTime);
 }
 
-void printData(std::ofstream myfile){
+void printData(std::ofstream &myfile){
     for(int count = 0; count < SPEC_CHANNELS; count ++){
         myfile << data[count] << "," ;
     }
@@ -114,6 +114,12 @@ void printData(std::ofstream myfile){
 }
 
 int main() {
+  
+  if (wiringPiSetup() < 0) {
+    fprintf(stderr, "Unable to open serial device\n");
+    return 1;
+  }
+
   pinMode(SPEC_CLK, OUTPUT);
   pinMode(SPEC_ST, OUTPUT);
   pinMode(LASER_404, OUTPUT);
