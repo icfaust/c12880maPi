@@ -27,53 +27,9 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include<iostream>
 
 #include <wiringPi.h>
-
-#define EOC1 26
-#define Clock1 27
-#define DataIn1 28
-#define DataOut1 29
-#define ChipSelect1 30
-
-#define Wait1us delayMicroseconds(1);
-#define Wait2us delayMicroseconds(2);
-#define Wait4us                                                                \
-  {                                                                            \
-    Wait2us;                                                                   \
-    Wait2us;                                                                   \
-  }
-#define Wait8us                                                                \
-  {                                                                            \
-    Wait4us;                                                                   \
-    Wait4us;                                                                   \
-  }
-#define Wait10us                                                               \
-  {                                                                            \
-    Wait8us;                                                                   \
-    Wait2us;                                                                   \
-  }
-
-class tcl1543 {
-private:
-  unsigned int EOC;
-  unsigned int Clock;
-  unsigned int DataIn;
-  unsigned int DataOut;
-  unsigned int ChipSelect;
-  bool flag;
-
-  void clocktick(void);
-
-public:
-  tcl1543(unsigned int, unsigned int, unsigned int,
-          unsigned int, unsigned int);
-
-  void sync(void);
-  unsigned int analogRead(unsigned int);
-
-};
+#include <tcl1543.h>
 
 tcl1543::tcl1543(unsigned int mEOC, unsigned int CL, unsigned int address,
                  unsigned int dout, unsigned int CS) {
@@ -118,7 +74,7 @@ void tcl1543::sync(void) {
 
     for (i = 0; i < j; i++) {
       if (i < 4)
-        digitalWrite(DataIn, Chan[i] & 0x01); // tell the next pass to return 10 1's
+        digitalWrite(DataIn, Chan[i]); // tell the next pass to return 10 1's
       if (i < 10 && !digitalRead(DataOut) && flag1)
         j = 15; // if the code does not list 10 1's move the sync
 
