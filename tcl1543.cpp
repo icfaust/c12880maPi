@@ -52,6 +52,26 @@ tcl1543::tcl1543(unsigned int mEOC, unsigned int CL, unsigned int address,
   sync();
 }
 
+tcl1543::tcl1543(void){
+  EOC = 26;
+  Clock = 27;
+  DataIn = 28;
+  DataOut = 29;
+  ChipSelect = 30;
+  flag = true;
+
+  pinMode(EOC, INPUT);
+  pullUpDnControl(EOC, PUD_UP);
+  pinMode(DataOut, INPUT);
+  pullUpDnControl(DataOut, PUD_UP);
+
+  pinMode(Clock, OUTPUT);
+  pinMode(DataIn, OUTPUT);
+  pinMode(ChipSelect, OUTPUT);
+
+}
+
+
 void tcl1543::clocktick() {
   digitalWrite(Clock, 1);
   Wait2us;

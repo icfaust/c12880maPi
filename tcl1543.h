@@ -1,6 +1,8 @@
 
 #ifndef TCL1543_H
 #define TCL1543_H
+#include <stdio.h>
+#include <string.h>
 
 #include <wiringPi.h>
 
@@ -21,6 +23,8 @@ private:
 public:
   tcl1543(unsigned int, unsigned int, unsigned int,
           unsigned int, unsigned int);
+
+  tcl1543(void);
 
   void sync(void);
   unsigned int analogRead(unsigned int);
