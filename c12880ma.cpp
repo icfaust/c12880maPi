@@ -3,6 +3,7 @@
 #include<iostream>
 #include<fstream>
 
+#include<tcl1543.h>
 #include<c12880ma.h>
 
 
@@ -14,6 +15,7 @@ c12880ma::c12880ma(int vout, int st, int cl, tcl1543 ADC){
 
   pinMode(clock, OUTPUT);
   pinMode(start, OUTPUT);
+  digitalWrite(clock, 0);
   digitalWrite(start, 0);   // Set SPEC_ST Low
   
 }
