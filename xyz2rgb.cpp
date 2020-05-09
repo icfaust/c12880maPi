@@ -31,7 +31,7 @@ template <typename T> std::vector<T> xyz2rgb(std::vector<float> xyz){
   std::vector<T> rgb = {0,0,0};
 
   rgb[0] = 3.24096994*xyz[0] - 1.53738318*xyz[1] - .49861076*xyz[2];
-  rgb[1] = -.96924364*xyz[0] + 1.8759675*xyz[1] + .04155506*xyz[2];
+  rgb[1] = -.96924364*xyz[0] + 1.87596750*xyz[1] + .04155506*xyz[2];
   rgb[2] = .055630098*xyz[0] - .20397696*xyz[1] + 1.05697151*xyz[2];
 
   // I need to do a gamma correction here somehow
